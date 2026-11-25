@@ -1,16 +1,19 @@
 # Dependencies
 node_modules/
+backend/node_modules/
+Frontend/node_modules/
 
 # Environment variables
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*.local
+backend/.env
+Frontend/.env
 
 # Build output
 dist/
 build/
+Frontend/dist/
 
 # Logs
 npm-debug.log*
@@ -20,6 +23,7 @@ pnpm-debug.log*
 
 # React / Vite
 .vite/
+Frontend/.vite/
 
 # Coverage
 coverage/
@@ -31,16 +35,3 @@ coverage/
 # OS files
 .DS_Store
 Thumbs.db
-
-# Temporary files
-*.tmp
-*.temp
-
-# Cache
-.cache/
-.parcel-cache/
-
-# Optional: local database files
-*.db
-*.sqlite
-*.sqlite3
