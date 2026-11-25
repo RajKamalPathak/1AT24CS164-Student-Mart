@@ -123,6 +123,8 @@ export default function CheckoutPage() {
 
     let paymentDetails = {};
 
+    let cardSaved = false;
+
     if (paymentMethod === 'saved-card') {
       const card = savedCards.find((c) => c._id === selectedCardId);
       if (!card) {
@@ -157,7 +159,7 @@ export default function CheckoutPage() {
         status: 'Authorized',
       };
 
-      // If user requested to save new card, call MongoDB API
+      // If user requested to save new card, call MongoDB API silently (single order toast shown below)
       if (newCard.saveCard) {
         try {
           await api.post('/cards', {
@@ -168,7 +170,7 @@ export default function CheckoutPage() {
             cardNickname: newCard.cardNickname || 'College Checkout Card',
             isDefault: savedCards.length === 0,
           });
-          addToast('Card safely stored in your MongoDB account!', 'success');
+          cardSaved = true;
         } catch (err) {
           console.warn('Could not auto-save card:', err.message);
         }
@@ -208,7 +210,12 @@ export default function CheckoutPage() {
 
       const res = await api.post('/orders', orderPayload);
       clearCart();
-      addToast('Order placed successfully & saved in MongoDB orders collection!', 'success');
+      addToast(
+        cardSaved
+          ? 'Order placed & card saved in MongoDB!'
+          : 'Order placed successfully & saved in MongoDB!',
+        'success'
+      );
       navigate('/orders', { state: { newOrderPlaced: true, orderId: res.data._id } });
     } catch (err) {
       addToast(err.message || 'Error processing your order', 'error');

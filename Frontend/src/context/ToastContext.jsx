@@ -1,13 +1,24 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useRef } from 'react';
 
 const ToastContext = createContext(null);
 
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
+  const lastToastRef = useRef({ message: '', time: 0 });
 
   const addToast = useCallback((message, type = 'info', duration = 3500) => {
-    const id = Date.now() + Math.random().toString(36).substring(2, 9);
-    setToasts((prev) => [...prev, { id, message, type }]);
+    const now = Date.now();
+    // Prevent duplicate identical toast firing twice in quick succession
+    if (
+      lastToastRef.current.message === message &&
+      now - lastToastRef.current.time < 600
+    ) {
+      return;
+    }
+    lastToastRef.current = { message, time: now };
+
+    const id = now + Math.random().toString(36).substring(2, 9);
+    setToasts((prev) => [...prev.slice(-2), { id, message, type }]);
 
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));

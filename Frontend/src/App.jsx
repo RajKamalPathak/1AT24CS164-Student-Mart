@@ -5,6 +5,7 @@ import { CartProvider } from './context/CartContext';
 
 import Layout from './components/Layout';
 import AdminLayout from './components/AdminLayout';
+import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 
 import PortalGatewayPage from './pages/PortalGatewayPage';
@@ -36,17 +37,22 @@ export default function App() {
 
               {/* Student / Customer Storefront Portal */}
               <Route element={<Layout />}>
+                {/* Public Storefront Routes */}
                 <Route path="/store" element={<HomePage />} />
                 <Route path="/products" element={<ProductsPage />} />
                 <Route path="/cart" element={<CartPage />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/orders" element={<OrdersPage />} />
-                <Route path="/account" element={<AccountPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+
+                {/* Authenticated Student Routes */}
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/orders" element={<OrdersPage />} />
+                  <Route path="/account" element={<AccountPage />} />
+                </Route>
               </Route>
 
-              {/* Separate Admin Portal */}
+              {/* Separate Admin Portal (Authenticated + Admin Role Required) */}
               <Route path="/admin/login" element={<AdminLoginPage />} />
               <Route element={<AdminRoute />}>
                 <Route path="/admin" element={<AdminLayout />}>

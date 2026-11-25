@@ -20,31 +20,32 @@ export const CartProvider = ({ children }) => {
   }, [cartItems]);
 
   const addToCart = (product, qty = 1) => {
-    setCartItems((prevItems) => {
-      const existing = prevItems.find((item) => item.product === product._id);
-      if (existing) {
-        const newQty = Math.min(existing.qty + qty, product.stock || 99);
-        addToast(`Updated quantity for "${product.name}" (${newQty})`, 'info');
-        return prevItems.map((item) =>
+    const existing = cartItems.find((item) => item.product === product._id);
+
+    if (existing) {
+      const newQty = Math.min(existing.qty + qty, product.stock || 99);
+      setCartItems((prevItems) =>
+        prevItems.map((item) =>
           item.product === product._id ? { ...item, qty: newQty } : item
-        );
-      } else {
-        addToast(`Added "${product.name}" to cart!`, 'success');
-        return [
-          ...prevItems,
-          {
-            product: product._id,
-            name: product.name,
-            price: product.price,
-            originalPrice: product.originalPrice,
-            image: product.image,
-            category: product.category,
-            stock: product.stock,
-            qty: Math.min(qty, product.stock || 1),
-          },
-        ];
-      }
-    });
+        )
+      );
+      addToast(`Updated quantity for "${product.name}" (${newQty})`, 'info');
+    } else {
+      setCartItems((prevItems) => [
+        ...prevItems,
+        {
+          product: product._id,
+          name: product.name,
+          price: product.price,
+          originalPrice: product.originalPrice,
+          image: product.image,
+          category: product.category,
+          stock: product.stock,
+          qty: Math.min(qty, product.stock || 1),
+        },
+      ]);
+      addToast(`Added "${product.name}" to cart!`, 'success');
+    }
   };
 
   const updateQty = (productId, qty) => {
@@ -64,13 +65,11 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeFromCart = (productId) => {
-    setCartItems((prev) => {
-      const target = prev.find((item) => item.product === productId);
-      if (target) {
-        addToast(`Removed "${target.name}" from cart`, 'info');
-      }
-      return prev.filter((item) => item.product !== productId);
-    });
+    const target = cartItems.find((item) => item.product === productId);
+    setCartItems((prev) => prev.filter((item) => item.product !== productId));
+    if (target) {
+      addToast(`Removed "${target.name}" from cart`, 'info');
+    }
   };
 
   const clearCart = () => {
