@@ -1,0 +1,16 @@
+{
+  "name": "student-mart",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Student Mart full-stack MERN project (Frontend + Backend runner)",
+  "scripts": {
+    "dev": "concurrently --kill-others -n \"BACKEND,FRONTEND\" -c \"cyan,green\" \"npm run dev --prefix backend\" \"npm run dev --prefix Frontend\"",
+    "install-all": "npm install && npm install --prefix backend && npm install --prefix Frontend",
+    "seed": "npm run seed --prefix backend",
+    "build": "npm run build --prefix Frontend",
+    "start": "npm start --prefix backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

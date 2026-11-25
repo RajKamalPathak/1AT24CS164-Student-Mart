@@ -15,6 +15,7 @@ import {
   Sparkles,
   Database,
   Building2,
+  ShieldCheck,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -251,6 +252,16 @@ export default function Sidebar() {
               </div>
             </div>
           )}
+
+          <NavLink
+            to={user?.role === 'admin' ? '/admin' : '/admin/login'}
+            className="sidebar-admin-portal-link"
+          >
+            <ShieldCheck size={14} />
+            <span>
+              {user?.role === 'admin' ? 'Open Admin Console' : 'Staff / Admin Portal'}
+            </span>
+          </NavLink>
         </div>
       </aside>
     </>

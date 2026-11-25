@@ -1,72 +1,86 @@
-const path = require("path");
-require("dotenv").config({ path: path.resolve(__dirname, ".env") });
-const express = require("express");
-const cors = require("cors");
-const mongoose = require("mongoose");
-const connectDB = require("./config/db");
-const Product = require("./models/Product");
-const productsSeed = require("./data/productsData");
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+const express = require('express');
+const cors = require('cors');
+const mongoose = require('mongoose');
+const connectDB = require('./config/db');
+const Product = require('./models/Product');
+const User = require('./models/User');
+const productsSeed = require('./data/productsData');
+const { ensureDefaultUsers } = require('./seeder');
 
 // Route imports
-const authRoutes = require("./routes/authRoutes");
-const userRoutes = require("./routes/userRoutes");
-const cardRoutes = require("./routes/cardRoutes");
-const productRoutes = require("./routes/productRoutes");
-const orderRoutes = require("./routes/orderRoutes");
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const cardRoutes = require('./routes/cardRoutes');
+const productRoutes = require('./routes/productRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
-const { notFound, errorHandler } = require("./middleware/errorMiddleware");
+const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
 const app = express();
 
-// Connect to MongoDB
-connectDB().then(async () => {
+// Connect to MongoDB (Local or Aiven Cloud) & Auto-Seed fresh database
+connectDB().then(async (conn) => {
+  if (!conn) return;
   try {
-    // Auto-seed products if database has 0 products
-    const count = await Product.countDocuments();
-    if (count === 0) {
-      console.log(
-        "[Auto-Seed] Initializing catalog with student stationery & supplies...",
-      );
+    const productCount = await Product.countDocuments();
+    if (productCount === 0) {
+      console.log('[Auto-Seed] Initializing catalog with student stationery & supplies...');
       await Product.insertMany(productsSeed);
-      console.log(
-        `[Auto-Seed] Successfully inserted ${productsSeed.length} student mart products!`,
-      );
+      console.log(`[Auto-Seed] Inserted ${productsSeed.length} student mart products!`);
+    }
+
+    const adminCount = await User.countDocuments({ role: 'admin' });
+    const studentCount = await User.countDocuments({ role: 'student' });
+    if (adminCount === 0 || studentCount === 0) {
+      await ensureDefaultUsers();
     }
   } catch (err) {
-    console.error("[Auto-Seed Error]", err.message);
+    console.error('[Auto-Seed Error]', err.message);
   }
 });
 
-// Middleware
+// Flexible CORS for Local Development & Vercel <-> Render Production
+const envOrigins = (process.env.CLIENT_URL || '')
+  .split(',')
+  .map((o) => o.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
+
 const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-  "http://127.0.0.1:5173",
-  process.env.CLIENT_URL,
-].filter(Boolean);
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+  ...envOrigins,
+];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps, curl, postman) or matching origins
+      if (!origin) return callback(null, true);
+      const cleanOrigin = origin.replace(/\/+$/, '');
+      const isVercelPreview = cleanOrigin.endsWith('.vercel.app');
       if (
-        !origin ||
-        allowedOrigins.indexOf(origin) !== -1 ||
-        process.env.NODE_ENV !== "production"
+        allowedOrigins.includes(cleanOrigin) ||
+        isVercelPreview ||
+        process.env.NODE_ENV !== 'production'
       ) {
-        callback(null, true);
-      } else {
-        callback(null, true); // Permissive for easy student grading & deployment
+        return callback(null, true);
       }
+      // Allow configured origin or fallback cleanly
+      return callback(null, true);
     },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
-  }),
+  })
 );
 
-app.use(express.json());
+app.use(express.json({ limit: '5mb' }));
 
 // Request logger for debugging
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV !== 'production') {
   app.use((req, res, next) => {
     console.log(`[HTTP] ${req.method} ${req.url}`);
     next();
@@ -74,55 +88,43 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // Health Check & MongoDB status endpoint
-app.get("/api/health", (req, res) => {
+app.get('/api/health', (req, res) => {
   const dbStatus =
-    mongoose.connection.readyState === 1 ? "Connected" : "Disconnected";
+    mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
   res.json({
-    status: "online",
-    appName: "Student Mart API",
+    status: 'online',
+    appName: 'Student Mart API',
+    environment: process.env.NODE_ENV || 'development',
     database: {
       status: dbStatus,
-      name: mongoose.connection.name || "student_mart",
-      host: mongoose.connection.host || "localhost",
+      name: mongoose.connection.name || 'student_mart',
+      host: mongoose.connection.host || 'localhost',
     },
     timestamp: new Date().toISOString(),
   });
 });
 
 // Mount Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/user", userRoutes);
-app.use("/api/cards", cardRoutes);
-app.use("/api/products", productRoutes);
-app.use("/api/orders", orderRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/cards', cardRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Root route
-app.get("/", (req, res) => {
+app.get('/', (req, res) => {
   res.json({
-    message: "Welcome to Student Mart API - College Stationery & Essentials",
-    status: "active",
-    documentation: {
-      health: "/api/health",
-      products: "/api/products",
-      categories: "/api/products/categories",
-      auth: {
-        register: "POST /api/auth/register",
-        login: "POST /api/auth/login",
-        me: "GET /api/auth/me",
-      },
-      user: {
-        updateProfile: "PUT /api/user/profile",
-        changePassword: "PUT /api/user/change-password",
-      },
-      cards: {
-        getCards: "GET /api/cards",
-        addCard: "POST /api/cards",
-        deleteCard: "DELETE /api/cards/:id",
-      },
-      orders: {
-        create: "POST /api/orders",
-        myOrders: "GET /api/orders/myorders",
-      },
+    message: 'Welcome to Student Mart API - College Stationery & Admin Portal',
+    status: 'active',
+    endpoints: {
+      health: '/api/health',
+      products: '/api/products',
+      auth: '/api/auth',
+      user: '/api/user',
+      cards: '/api/cards',
+      orders: '/api/orders',
+      admin: '/api/admin',
     },
   });
 });

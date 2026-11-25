@@ -2,15 +2,29 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/student_mart';
-    const conn = await mongoose.connect(mongoURI);
+    const mongoURI =
+      process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/student_mart';
 
-    console.log(`[MongoDB Connected] Host: ${conn.connection.host} | DB: ${conn.connection.name}`);
+    const isCloudDB =
+      mongoURI.includes('mongodb+srv://') ||
+      mongoURI.includes('aivencloud.com') ||
+      mongoURI.includes('ssl=true') ||
+      mongoURI.includes('tls=true');
+
+    const conn = await mongoose.connect(mongoURI, {
+      serverSelectionTimeoutMS: 12000,
+    });
+
+    console.log(
+      `[MongoDB Connected] Mode: ${isCloudDB ? 'Cloud (Aiven / Atlas)' : 'Local'} | Host: ${conn.connection.host} | DB: ${conn.connection.name}`
+    );
     return conn;
   } catch (error) {
     console.error(`[MongoDB Connection Error] ${error.message}`);
-    console.error('Make sure MongoDB is running locally (e.g. via Windows Service) or check MONGO_URI in .env');
-    // We do not exit process immediately so server can still report DB status to client
+    console.error(
+      'Check that local MongoDB is running or verify your Aiven MONGO_URI in environment variables.'
+    );
+    return null;
   }
 };
 

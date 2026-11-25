@@ -4,6 +4,9 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 
 import Layout from './components/Layout';
+import AdminLayout from './components/AdminLayout';
+import AdminRoute from './components/AdminRoute';
+
 import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import CartPage from './pages/CartPage';
@@ -13,6 +16,13 @@ import AccountPage from './pages/AccountPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 
+import AdminLoginPage from './pages/admin/AdminLoginPage';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import AdminAddProductPage from './pages/admin/AdminAddProductPage';
+import AdminProductsPage from './pages/admin/AdminProductsPage';
+import AdminOrdersPage from './pages/admin/AdminOrdersPage';
+import AdminStudentsPage from './pages/admin/AdminStudentsPage';
+
 export default function App() {
   return (
     <ToastProvider>
@@ -20,6 +30,7 @@ export default function App() {
         <CartProvider>
           <Router>
             <Routes>
+              {/* Student / Customer Storefront Portal */}
               <Route path="/" element={<Layout />}>
                 <Route index element={<HomePage />} />
                 <Route path="products" element={<ProductsPage />} />
@@ -29,9 +40,22 @@ export default function App() {
                 <Route path="account" element={<AccountPage />} />
                 <Route path="login" element={<LoginPage />} />
                 <Route path="register" element={<RegisterPage />} />
-                {/* Fallback */}
-                <Route path="*" element={<Navigate to="/" replace />} />
               </Route>
+
+              {/* Separate Admin Portal */}
+              <Route path="/admin/login" element={<AdminLoginPage />} />
+              <Route element={<AdminRoute />}>
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<AdminDashboardPage />} />
+                  <Route path="add-product" element={<AdminAddProductPage />} />
+                  <Route path="products" element={<AdminProductsPage />} />
+                  <Route path="orders" element={<AdminOrdersPage />} />
+                  <Route path="students" element={<AdminStudentsPage />} />
+                </Route>
+              </Route>
+
+              {/* Fallback */}
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Router>
         </CartProvider>
