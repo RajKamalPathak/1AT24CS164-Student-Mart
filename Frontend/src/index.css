@@ -3967,3 +3967,89 @@ img {
   font-size: 0.82rem;
   color: var(--text-muted);
 }
+
+
+/* =========================================================
+   CATEGORY-GROUPED PRODUCTS & DELETE CUSTOMER BUTTON
+   ========================================================= */
+
+.category-sections-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.category-section-block {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.category-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.65rem;
+  border-bottom: 2px solid var(--border-light);
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.category-section-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.cat-section-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.category-section-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+}
+
+.category-section-count {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background-color: var(--bg-card-subtle);
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border-light);
+}
+
+.btn-delete-account {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.38rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.btn-delete-account:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.protected-account-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background-color: var(--bg-card-subtle);
+  padding: 0.25rem 0.55rem;
+  border-radius: 9999px;
+}

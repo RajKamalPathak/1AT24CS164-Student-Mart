@@ -49,7 +49,38 @@ const getAllStudents = async (req, res) => {
   }
 };
 
+// @desc    Admin: Delete a customer (student) account and their saved cards
+// @route   DELETE /api/admin/users/:id
+// @access  Private/Admin
+const deleteStudentAccount = async (req, res) => {
+  try {
+    const targetUser = await User.findById(req.params.id);
+
+    if (!targetUser) {
+      return res.status(404).json({ message: 'Customer account not found' });
+    }
+
+    if (targetUser.role === 'admin' || targetUser._id.toString() === req.user._id.toString()) {
+      return res.status(400).json({
+        message: 'Administrator accounts cannot be deleted from here',
+      });
+    }
+
+    // Remove saved cards belonging to this customer
+    await Card.deleteMany({ user: targetUser._id });
+    await targetUser.deleteOne();
+
+    res.json({
+      message: `Customer account (${targetUser.email}) deleted from MongoDB`,
+    });
+  } catch (error) {
+    console.error('[Admin Delete User Error]', error);
+    res.status(500).json({ message: error.message || 'Error deleting customer account' });
+  }
+};
+
 module.exports = {
   getAdminStats,
   getAllStudents,
+  deleteStudentAccount,
 };

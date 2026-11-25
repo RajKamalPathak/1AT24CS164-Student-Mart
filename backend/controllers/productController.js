@@ -28,13 +28,13 @@ const getProducts = async (req, res) => {
 
     let sortOptions = {};
     if (sort === 'price-asc') {
-      sortOptions = { price: 1 };
+      sortOptions = { category: 1, price: 1 };
     } else if (sort === 'price-desc') {
-      sortOptions = { price: -1 };
+      sortOptions = { category: 1, price: -1 };
     } else if (sort === 'rating') {
-      sortOptions = { rating: -1 };
+      sortOptions = { category: 1, rating: -1 };
     } else {
-      sortOptions = { createdAt: -1 };
+      sortOptions = { category: 1, createdAt: -1 };
     }
 
     const products = await Product.find(query).sort(sortOptions);

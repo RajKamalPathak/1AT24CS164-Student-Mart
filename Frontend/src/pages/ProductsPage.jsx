@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Search,
@@ -9,9 +9,24 @@ import {
   X,
   Sparkles,
   Info,
+  BookOpen,
+  PenTool,
+  Cpu,
+  FlaskConical,
+  Palette,
+  Lamp,
 } from 'lucide-react';
 import api from '../services/api';
 import { useCart } from '../context/CartContext';
+
+const CATEGORY_ORDER = [
+  { name: 'Notebooks & Paper', icon: BookOpen, color: '#2563eb' },
+  { name: 'Writing & Pens', icon: PenTool, color: '#0891b2' },
+  { name: 'Calculators & Tech', icon: Cpu, color: '#7c3aed' },
+  { name: 'Lab & Engineering', icon: FlaskConical, color: '#059669' },
+  { name: 'Art & Drafting', icon: Palette, color: '#d97706' },
+  { name: 'Study & Dorm', icon: Lamp, color: '#dc2626' },
+];
 
 export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -22,19 +37,11 @@ export default function ProductsPage() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState(initialCategory);
   const [sort, setSort] = useState('featured');
-  const [selectedProduct, setSelectedProduct] = useState(null); // for quick-view modal
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const { addToCart } = useCart();
 
-  const categories = [
-    'All',
-    'Notebooks & Paper',
-    'Writing & Pens',
-    'Calculators & Tech',
-    'Lab & Engineering',
-    'Art & Drafting',
-    'Study & Dorm',
-  ];
+  const categories = ['All', ...CATEGORY_ORDER.map((c) => c.name)];
 
   // Sync category state if URL param changes
   useEffect(() => {
@@ -77,6 +84,40 @@ export default function ProductsPage() {
     return () => clearTimeout(debounceTimer);
   }, [category, search, sort]);
 
+  // Group products into sorted category sections for the Customer POV
+  const groupedSections = useMemo(() => {
+    const sections = [];
+    const knownNames = new Set(CATEGORY_ORDER.map((c) => c.name));
+
+    for (const catMeta of CATEGORY_ORDER) {
+      const items = products.filter((p) => p.category === catMeta.name);
+      if (items.length > 0) {
+        sections.push({
+          ...catMeta,
+          items,
+        });
+      }
+    }
+
+    // Fallback for any custom categories
+    const extraCategories = [...new Set(products.map((p) => p.category))].filter(
+      (name) => !knownNames.has(name)
+    );
+    for (const extraName of extraCategories) {
+      const items = products.filter((p) => p.category === extraName);
+      if (items.length > 0) {
+        sections.push({
+          name: extraName,
+          icon: ShoppingBag,
+          color: '#334155',
+          items,
+        });
+      }
+    }
+
+    return sections;
+  }, [products]);
+
   const handleCategoryChange = (newCat) => {
     setCategory(newCat);
     if (newCat === 'All') {
@@ -92,9 +133,9 @@ export default function ProductsPage() {
       {/* Header and Controls */}
       <div className="page-header-box">
         <div>
-          <h1 className="page-title">Stationery & Academic Supplies</h1>
+          <h1 className="page-title">Stationery &amp; Academic Supplies</h1>
           <p className="page-subtitle">
-            Authentic notebooks, calculators, lab gear, and dorm utilities for campus students.
+            Organized by academic category — notebooks, calculators, lab gear, and dorm utilities.
           </p>
         </div>
 
@@ -122,7 +163,6 @@ export default function ProductsPage() {
 
       {/* Filter and Sort Toolbar */}
       <div className="filter-sort-toolbar">
-        {/* Category Pills */}
         <div className="category-pills-row">
           {categories.map((cat) => (
             <button
@@ -135,7 +175,6 @@ export default function ProductsPage() {
           ))}
         </div>
 
-        {/* Sort Dropdown */}
         <div className="sort-box">
           <SlidersHorizontal size={15} />
           <label htmlFor="sort-select" className="sr-only">
@@ -147,7 +186,7 @@ export default function ProductsPage() {
             onChange={(e) => setSort(e.target.value)}
             className="sort-select"
           >
-            <option value="featured">Sort: Featured</option>
+            <option value="featured">Sort: Category &amp; Featured</option>
             <option value="price-asc">Price: Low to High</option>
             <option value="price-desc">Price: High to Low</option>
             <option value="rating">Highest Rated</option>
@@ -158,8 +197,9 @@ export default function ProductsPage() {
       {/* Product Results Counter */}
       <div className="results-count-bar">
         <span>
-          Showing <strong>{products.length}</strong> items
-          {category !== 'All' ? ` in "${category}"` : ''}
+          Showing <strong>{products.length}</strong> items across{' '}
+          <strong>{groupedSections.length}</strong>{' '}
+          {groupedSections.length === 1 ? 'category' : 'categories'}
           {search ? ` matching "${search}"` : ''}
         </span>
         {(category !== 'All' || search) && (
@@ -172,18 +212,18 @@ export default function ProductsPage() {
               setSearchParams(searchParams);
             }}
           >
-            Reset Filters
+            Show All Categories
           </button>
         )}
       </div>
 
-      {/* Products Grid */}
+      {/* Category-Sorted Product Sections */}
       {loading ? (
         <div className="loading-state-box">
           <div className="spinner"></div>
           <p>Querying products from MongoDB...</p>
         </div>
-      ) : products.length === 0 ? (
+      ) : groupedSections.length === 0 ? (
         <div className="empty-results-box">
           <ShoppingBag size={48} className="empty-icon" />
           <h3>No products found</h3>
@@ -193,91 +233,148 @@ export default function ProductsPage() {
             onClick={() => {
               setCategory('All');
               setSearch('');
+              searchParams.delete('category');
+              setSearchParams(searchParams);
             }}
           >
             Clear Search
           </button>
         </div>
       ) : (
-        <div className="products-grid">
-          {products.map((product) => (
-            <div key={product._id} className="product-card">
-              <div
-                className="product-image-wrap clickable"
-                onClick={() => setSelectedProduct(product)}
-                title="Click to view details"
-              >
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="product-img"
-                  loading="lazy"
-                />
-                {product.badge && (
-                  <span className="product-badge-tag">{product.badge}</span>
-                )}
-                <span className="product-category-chip">{product.category}</span>
-              </div>
-
-              <div className="product-body">
-                <h3
-                  className="product-title clickable"
-                  onClick={() => setSelectedProduct(product)}
-                >
-                  {product.name}
-                </h3>
-                <p className="product-desc-snippet">{product.description}</p>
-
-                <div className="product-rating-row">
-                  <div className="rating-pill">
-                    <Star size={13} fill="#f59e0b" color="#f59e0b" />
-                    <span>{product.rating}</span>
+        <div className="category-sections-stack">
+          {groupedSections.map((section) => {
+            const IconComponent = section.icon;
+            return (
+              <section key={section.name} className="category-section-block">
+                <div className="category-section-header">
+                  <div className="category-section-title-group">
+                    <div
+                      className="cat-section-icon"
+                      style={{
+                        backgroundColor: `${section.color}15`,
+                        color: section.color,
+                      }}
+                    >
+                      <IconComponent size={19} />
+                    </div>
+                    <h2 className="category-section-title">{section.name}</h2>
+                    <span className="category-section-count">
+                      {section.items.length}{' '}
+                      {section.items.length === 1 ? 'item' : 'items'}
+                    </span>
                   </div>
-                  <span className="reviews-text">({product.numReviews})</span>
-                  <span
-                    className={`stock-pill ${
-                      product.stock <= 5 ? 'stock-low' : ''
-                    }`}
-                  >
-                    {product.stock > 0 ? `${product.stock} available` : 'Out of stock'}
-                  </span>
+
+                  {category === 'All' && (
+                    <button
+                      type="button"
+                      className="btn-clear-filters"
+                      onClick={() => handleCategoryChange(section.name)}
+                    >
+                      Filter only {section.name}
+                    </button>
+                  )}
                 </div>
 
-                <div className="product-footer-row">
-                  <div className="price-stack">
-                    <span className="current-price">₹{product.price}</span>
-                    {product.originalPrice > product.price && (
-                      <span className="original-price">₹{product.originalPrice}</span>
-                    )}
-                  </div>
-                  <div className="product-btn-group">
-                    <button
-                      className="btn-info-quick"
-                      onClick={() => setSelectedProduct(product)}
-                      title="View specifications"
-                      aria-label="View specifications"
-                    >
-                      <Info size={16} />
-                    </button>
-                    <button
-                      className="btn-add-cart"
-                      onClick={() => addToCart(product)}
-                      disabled={product.stock === 0}
-                    >
-                      <ShoppingBag size={15} />
-                      <span>{product.stock > 0 ? 'Add' : 'Sold Out'}</span>
-                    </button>
-                  </div>
+                <div className="products-grid">
+                  {section.items.map((product) => (
+                    <div key={product._id} className="product-card">
+                      <div
+                        className="product-image-wrap clickable"
+                        onClick={() => setSelectedProduct(product)}
+                        title="Click to view details"
+                      >
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="product-img"
+                          loading="lazy"
+                        />
+                        {product.badge && (
+                          <span className="product-badge-tag">{product.badge}</span>
+                        )}
+                        <span className="product-category-chip">
+                          {product.category}
+                        </span>
+                      </div>
+
+                      <div className="product-body">
+                        <h3
+                          className="product-title clickable"
+                          onClick={() => setSelectedProduct(product)}
+                        >
+                          {product.name}
+                        </h3>
+                        <p className="product-desc-snippet">
+                          {product.description}
+                        </p>
+
+                        <div className="product-rating-row">
+                          <div className="rating-pill">
+                            <Star size={13} fill="#f59e0b" color="#f59e0b" />
+                            <span>{product.rating}</span>
+                          </div>
+                          <span className="reviews-text">
+                            ({product.numReviews})
+                          </span>
+                          <span
+                            className={`stock-pill ${
+                              product.stock <= 5 ? 'stock-low' : ''
+                            }`}
+                          >
+                            {product.stock > 0
+                              ? `${product.stock} available`
+                              : 'Out of stock'}
+                          </span>
+                        </div>
+
+                        <div className="product-footer-row">
+                          <div className="price-stack">
+                            <span className="current-price">
+                              ₹{product.price}
+                            </span>
+                            {product.originalPrice > product.price && (
+                              <span className="original-price">
+                                ₹{product.originalPrice}
+                              </span>
+                            )}
+                          </div>
+                          <div className="product-btn-group">
+                            <button
+                              className="btn-info-quick"
+                              onClick={() => setSelectedProduct(product)}
+                              title="View specifications"
+                              aria-label="View specifications"
+                            >
+                              <Info size={16} />
+                            </button>
+                            <button
+                              className="btn-add-cart"
+                              onClick={() => addToCart(product)}
+                              disabled={product.stock === 0}
+                            >
+                              <ShoppingBag size={15} />
+                              <span>
+                                {product.stock > 0 ? 'Add' : 'Sold Out'}
+                              </span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            </div>
-          ))}
+              </section>
+            );
+          })}
         </div>
       )}
 
       {/* Quick View Modal */}
       {selectedProduct && (
-        <div className="modal-backdrop" onClick={() => setSelectedProduct(null)}>
+        <div
+          className="modal-backdrop"
+          onClick={() => setSelectedProduct(null)}
+        >
           <div
             className="modal-content product-detail-modal"
             onClick={(e) => e.stopPropagation()}
@@ -323,40 +420,50 @@ export default function ProductsPage() {
 
                 <div className="modal-pricing-box">
                   <div className="modal-price-stack">
-                    <span className="modal-price">₹{selectedProduct.price}</span>
+                    <span className="modal-price">
+                      ₹{selectedProduct.price}
+                    </span>
                     {selectedProduct.originalPrice > selectedProduct.price && (
                       <span className="modal-original-price">
                         ₹{selectedProduct.originalPrice}
                       </span>
                     )}
                   </div>
-                  <span className="modal-tax-note">Includes all college store taxes</span>
+                  <span className="modal-tax-note">
+                    Includes all college store taxes
+                  </span>
                 </div>
 
-                <p className="modal-description">{selectedProduct.description}</p>
+                <p className="modal-description">
+                  {selectedProduct.description}
+                </p>
 
-                {selectedProduct.features && selectedProduct.features.length > 0 && (
-                  <div className="modal-features-list">
-                    <h4>Key Product Highlights:</h4>
-                    <ul>
-                      {selectedProduct.features.map((feat, idx) => (
-                        <li key={idx}>
-                          <Check size={14} className="feature-check-icon" />
-                          <span>{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                {selectedProduct.features &&
+                  selectedProduct.features.length > 0 && (
+                    <div className="modal-features-list">
+                      <h4>Key Product Highlights:</h4>
+                      <ul>
+                        {selectedProduct.features.map((feat, idx) => (
+                          <li key={idx}>
+                            <Check size={14} className="feature-check-icon" />
+                            <span>{feat}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
                 <div className="modal-stock-status">
                   <strong>Stock in Student Mart: </strong>
                   {selectedProduct.stock > 0 ? (
                     <span className="in-stock-text">
-                      ✓ {selectedProduct.stock} units available for instant dispatch
+                      ✓ {selectedProduct.stock} units available for instant
+                      dispatch
                     </span>
                   ) : (
-                    <span className="out-of-stock-text">Temporarily Sold Out</span>
+                    <span className="out-of-stock-text">
+                      Temporarily Sold Out
+                    </span>
                   )}
                 </div>
 
