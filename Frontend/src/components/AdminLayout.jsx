@@ -46,7 +46,7 @@ export default function AdminLayout() {
 
   const handleLogout = () => {
     logout();
-    navigate('/admin/login');
+    navigate('/');
   };
 
   return (
@@ -157,9 +157,14 @@ export default function AdminLayout() {
             STOREFRONT ACCESS
           </div>
 
-          <NavLink to="/" className="nav-item">
+          <NavLink to="/store" className="nav-item">
             <Store size={19} />
-            <span>View Student Portal</span>
+            <span>View Student Store</span>
+          </NavLink>
+
+          <NavLink to="/" className="nav-item">
+            <ShieldCheck size={19} />
+            <span>Switch Portal</span>
           </NavLink>
         </nav>
 

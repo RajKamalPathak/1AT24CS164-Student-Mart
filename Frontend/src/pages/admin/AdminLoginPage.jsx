@@ -138,10 +138,15 @@ export default function AdminLoginPage() {
         </form>
 
         <div className="auth-footer-prompt">
-          <Link to="/" className="auth-link">
-            <Store size={15} />
-            <span>Back to Student Customer Storefront</span>
-          </Link>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
+            <Link to="/" className="auth-link">
+              <span>← Portal Selection</span>
+            </Link>
+            <Link to="/store" className="auth-link">
+              <Store size={15} />
+              <span>Student Storefront</span>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

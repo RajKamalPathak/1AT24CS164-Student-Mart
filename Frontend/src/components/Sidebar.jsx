@@ -129,7 +129,7 @@ export default function Sidebar() {
           <div className="nav-group-label">STORE NAVIGATION</div>
 
           <NavLink
-            to="/"
+            to="/store"
             end
             className={({ isActive }) =>
               `nav-item ${isActive ? 'nav-item-active' : ''}`
@@ -254,13 +254,11 @@ export default function Sidebar() {
           )}
 
           <NavLink
-            to={user?.role === 'admin' ? '/admin' : '/admin/login'}
+            to="/"
             className="sidebar-admin-portal-link"
           >
             <ShieldCheck size={14} />
-            <span>
-              {user?.role === 'admin' ? 'Open Admin Console' : 'Staff / Admin Portal'}
-            </span>
+            <span>Switch Portal (Student / Admin)</span>
           </NavLink>
         </div>
       </aside>

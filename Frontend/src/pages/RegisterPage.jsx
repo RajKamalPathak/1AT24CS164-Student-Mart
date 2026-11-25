@@ -52,7 +52,7 @@ export default function RegisterPage() {
       if (redirect === 'checkout') {
         navigate('/checkout');
       } else {
-        navigate('/');
+        navigate('/store');
       }
     } catch (err) {
       // handled in context

@@ -3698,3 +3698,272 @@ img {
   background-color: var(--primary-light);
   color: var(--primary);
 }
+
+
+/* =========================================================
+   PORTAL GATEWAY (START SCREEN: STUDENT vs ADMIN)
+   ========================================================= */
+
+.portal-gateway-wrapper {
+  min-height: 100vh;
+  background-color: var(--bg-canvas);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+}
+
+.portal-gateway-container {
+  max-width: 960px;
+  width: 100%;
+}
+
+.gateway-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.gateway-brand-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--navy-dark);
+  color: #fbbf24;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  margin-bottom: 1rem;
+}
+
+.gateway-title {
+  font-size: 2.15rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 640px) {
+  .gateway-title {
+    font-size: 1.65rem;
+  }
+}
+
+.gateway-subtitle {
+  font-size: 0.98rem;
+  color: var(--text-muted);
+  max-width: 640px;
+  margin: 0.5rem auto 0;
+  line-height: 1.55;
+}
+
+.portal-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.75rem;
+}
+
+@media (max-width: 760px) {
+  .portal-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.portal-choice-card {
+  background-color: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.portal-choice-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.portal-student-card:hover {
+  border-color: var(--primary);
+}
+
+.portal-admin-card:hover {
+  border-color: var(--amber);
+}
+
+.portal-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.35rem;
+}
+
+.portal-icon-box {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.student-icon-box {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
+}
+
+.admin-icon-box {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.28);
+}
+
+.portal-role-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 0.28rem 0.65rem;
+  border-radius: 9999px;
+}
+
+.student-tag {
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.admin-role-tag {
+  background-color: var(--amber-light);
+  color: #92400e;
+}
+
+.portal-card-heading {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+
+.portal-card-desc {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
+
+.portal-features-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.portal-features-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.86rem;
+  color: #334155;
+}
+
+.portal-student-card .portal-features-list svg {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.portal-admin-card .portal-features-list svg {
+  color: var(--amber);
+  flex-shrink: 0;
+}
+
+.portal-session-note {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background-color: var(--emerald-light);
+  color: var(--emerald);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.45rem 0.75rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1rem;
+}
+
+.admin-session-note {
+  background-color: var(--amber-light);
+  color: #92400e;
+}
+
+.portal-card-actions {
+  margin-top: auto;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-portal-student {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: var(--primary);
+  color: #ffffff;
+  padding: 0.78rem 1.2rem;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.92rem;
+  transition: background 0.15s;
+}
+
+.btn-portal-student:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-portal-admin {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #d97706;
+  color: #ffffff;
+  padding: 0.78rem 1.2rem;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.92rem;
+  transition: background 0.15s;
+}
+
+.btn-portal-admin:hover {
+  background-color: #b45309;
+}
+
+.btn-portal-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: 1px solid var(--border-light);
+  color: var(--text-main);
+  padding: 0.78rem 1rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.btn-portal-outline:hover {
+  background-color: var(--bg-card-subtle);
+}
+
+.gateway-footer {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}

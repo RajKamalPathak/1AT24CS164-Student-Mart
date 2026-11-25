@@ -7,6 +7,7 @@ import Layout from './components/Layout';
 import AdminLayout from './components/AdminLayout';
 import AdminRoute from './components/AdminRoute';
 
+import PortalGatewayPage from './pages/PortalGatewayPage';
 import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import CartPage from './pages/CartPage';
@@ -30,16 +31,19 @@ export default function App() {
         <CartProvider>
           <Router>
             <Routes>
+              {/* Entry Portal Chooser (Asks Student vs Admin right at start) */}
+              <Route path="/" element={<PortalGatewayPage />} />
+
               {/* Student / Customer Storefront Portal */}
-              <Route path="/" element={<Layout />}>
-                <Route index element={<HomePage />} />
-                <Route path="products" element={<ProductsPage />} />
-                <Route path="cart" element={<CartPage />} />
-                <Route path="checkout" element={<CheckoutPage />} />
-                <Route path="orders" element={<OrdersPage />} />
-                <Route path="account" element={<AccountPage />} />
-                <Route path="login" element={<LoginPage />} />
-                <Route path="register" element={<RegisterPage />} />
+              <Route element={<Layout />}>
+                <Route path="/store" element={<HomePage />} />
+                <Route path="/products" element={<ProductsPage />} />
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/orders" element={<OrdersPage />} />
+                <Route path="/account" element={<AccountPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
               </Route>
 
               {/* Separate Admin Portal */}

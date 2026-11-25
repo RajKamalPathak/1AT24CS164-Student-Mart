@@ -40,7 +40,7 @@ export default function LoginPage() {
       } else if (redirect === 'orders') {
         navigate('/orders');
       } else {
-        navigate('/');
+        navigate('/store');
       }
     } catch (err) {
       // error handled in auth context
@@ -125,6 +125,11 @@ export default function LoginPage() {
           <Link to={`/register${redirect ? `?redirect=${redirect}` : ''}`} className="auth-link">
             Create an Account <ArrowRight size={14} />
           </Link>
+          <div style={{ marginTop: '0.65rem' }}>
+            <Link to="/" className="auth-link" style={{ fontSize: '0.8rem', color: '#64748b' }}>
+              ← Back to Portal Selection (Student / Admin)
+            </Link>
+          </div>
         </div>
 
         <div className="auth-db-tag">
